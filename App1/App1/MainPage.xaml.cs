@@ -28,6 +28,39 @@ namespace App1
         public MainPage()
         {
             this.InitializeComponent();
+
+            mapControl.MapElementClick += MapControl_MapElementClick;
+        }
+
+
+
+        private async void MapControl_MapElementClick(MapControl sender, MapElementClickEventArgs args)
+        {
+            //throw new NotImplementedException();
+            if (args.MapElements.Count > 0 && args.MapElements[0] is MapIcon)
+            {
+                outerGrid.RowDefinitions[1].Height = new GridLength(200);
+                detailsArea.Visibility = Visibility.Visible;
+                MapIcon mapIcon = (MapIcon)args.MapElements[0];
+                detailsTitle.Text = "Location: " + mapIcon.Title;
+
+                StreetsidePanorama panorama = await
+                    StreetsidePanorama.FindNearbyAsync(mapIcon.Location);
+                if (panorama != null && streetSide.IsStreetsideSupported)
+                {
+                    //streetSide.Visibility = Visibility.Visible; (KNOWN ISSUE)
+                    streetSide.Width = 300;
+                    streetSide.Height = 160;
+                    streetSide.CustomExperience = new StreetsideExperience(panorama);
+
+                }
+                else
+                {
+
+                    streetSide.Width = 0;
+                    streetSide.Height = 0;
+                }
+            }
         }
 
         private async void searchGoButton_Click(object sender, RoutedEventArgs e)
@@ -56,5 +89,10 @@ namespace App1
                 }
             }
         }
+
+        //private void another_searchGoButton_Click(object sender, RoutedEventArgs e)
+        //{
+
+        //}
     }
 }
